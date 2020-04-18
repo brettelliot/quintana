@@ -1,0 +1,4 @@
+[submodule "balsam"]
+	path = balsam
+	url = https://github.com/brettelliot/balsam
+	branch = juniper
