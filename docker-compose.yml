@@ -40,5 +40,6 @@ services:
     environment:
       # Load our flask environment from our .env file.
       - FLASK_ENV=${FLASK_ENV}
+      - BALSAM_API_KEY=${BALSAM_API_KEY}
     ports:
       - 5000:5000
