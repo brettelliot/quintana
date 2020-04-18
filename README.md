@@ -1,8 +1,8 @@
-# docker-nginx-gunicorn-flask-letsencrypt
+# Juniper
 
 This repository contains necessary files to build a web-app running with Nginx / Gunicorn / Flask / LetsEncrypt using Docker and docker-compose.  
 
-**Note: Tested on Ubuntu 16.04 and 18.04**
+**Note: Tested on Ubuntu 18.04**
 
 ## Docker
 
@@ -62,6 +62,10 @@ FLASK_ENV=development
 # or the application package (as in this case) as the app's
 # configs are under ./core/flask_app/__init__.py
 FLASK_APP=flask_app
+
+# This repo pulls in balsam, a simple flask API. It is secured with an api key
+# stored in an environment variable. Set it to something stronger in production:
+BALSAM_API_KEY=demo_key
 ```
 
 ## Turning it on
@@ -82,4 +86,31 @@ sudo make dc-cleanup     # Delete and clear docker images.
 sudo make dc-start-local # Start application w/o nginx (for running locally)
 ```
 
-Auto checks are running weekly to update the certificates.  
+Auto checks are running weekly to update the certificates. 
+
+## Updating the host after a change
+Let's say juniper has been updated. This is how you get the new changes on the host:
+
+```sh
+cd /opt/juniper
+
+# Shutdown everything
+sudo make dc-stop
+
+# Get the changes
+sudo git checkout master
+sudo git pull origin master
+
+# Update the submodules
+sudo git submodule update --init --recursiv
+
+# Update the .env file if needed
+sudo cp .env.example .env
+sudo vim .env
+
+# run it
+sudo make dc-start
+
+# check its running
+sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+```
