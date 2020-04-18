@@ -62,7 +62,7 @@ I recommend doing this in `/opt`
 
 ```sh
 cd /opt
-sudo git clone https://github.com/smallwat3r/docker-nginx-gunicorn-flask-letsencrypt.git
+sudo git clone https://github.com/brettelliot/juniper.git
 ```
 
 Install docker, docker-compose and make (explained [above](#requirements)).  
@@ -110,11 +110,3 @@ sudo make dc-start-local # Start application w/o nginx (for running locally)
 ```
 
 Auto checks are running weekly to update the certificates.  
-
-## License
-
-See [LICENSE](https://github.com/smallwat3r/docker-nginx-gunicorn-flask-letsencrypt/blob/master/LICENSE) file.  
-
-## Contact
-
-Please report issues or questions [here](https://github.com/smallwat3r/docker-nginx-gunicorn-flask-letsencrypt/issues).
