@@ -17,6 +17,7 @@ git checkout be-feature
 # 3. Do work in your feature branch, committing early and often
 git add -p
 git commit -m "my changes"
+git push
 
 # 4. Rebase frequently to incorporate upstream changes
 # Get stuff from origin master, then apply my changes on top with rebase
