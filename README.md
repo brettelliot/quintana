@@ -63,9 +63,9 @@ FLASK_ENV=development
 # configs are under ./core/flask_app/__init__.py
 FLASK_APP=flask_app
 
-# This repo pulls in balsam, a simple flask API. It is secured with an api key
-# stored in an environment variable. Set it to something stronger in production:
-BALSAM_API_KEY=demo_key
+# The flask app's api is secured with an api key stored in an environment 
+# variable. Set it to something stronger in production:production
+API_KEY=demo_key
 ```
 
 ## Turning it on
@@ -84,6 +84,7 @@ sudo make dc-reboot      # Reboot application.
 sudo make dc-stop        # Stop application.
 sudo make dc-cleanup     # Delete and clear docker images.
 sudo make dc-start-local # Start application w/o nginx (for running locally)
+sudo make dc-ps          # Show what docker processes are running
 ```
 
 Auto checks are running weekly to update the certificates. 

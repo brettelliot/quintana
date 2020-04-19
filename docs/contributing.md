@@ -34,21 +34,18 @@ git merge be-feature
 # 7. Push your changes to the upstream
 git push origin master
 
-# optional: tag important things, such as releases
+# 8a. optional: tag important things, such as releases
 git tag 1.0.0
 
-# push single tag
+# 8b. push single tag
 git push origin 1.0.0
 
-# Push all tags
+# 8c. Push all tags
 git push origin --tags
+
+# 9a. Go back to your feature branch and do more work
+git checkout be-feature
+
+# 9b. Replay your changes on top of your feature branch
+git pull
 ```
-
-## How this was made
-Balsam was added as a submodule using:
-
-```sh
-git submodule add -b juniper https://github.com/brettelliot/balsam balsam
-```
-
-
