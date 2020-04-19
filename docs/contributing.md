@@ -11,11 +11,15 @@ git pull origin master
 # 2. Check out a feature branch
 git checkout -b be-feature
 
+# 2. Or switch to it if it already exists
+git checkout be-feature
+
 # 3. Do work in your feature branch, committing early and often
 git add -p
 git commit -m "my changes"
 
 # 4. Rebase frequently to incorporate upstream changes
+# Get stuff from origin master, then apply my changes on top with rebase
 git fetch origin master
 git rebase origin/master
 
@@ -28,6 +32,15 @@ git merge be-feature
 
 # 7. Push your changes to the upstream
 git push origin master
+
+# optional: tag important things, such as releases
+git tag 1.0.0
+
+# push single tag
+git push origin 1.0.0
+
+# Push all tags
+git push origin --tags
 ```
 
 ## How this was made

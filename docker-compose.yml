@@ -26,6 +26,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - application
+    restart: always     
 
   application:
     # Load app folder fron our .env file (in this example: core).
@@ -40,6 +41,7 @@ services:
     environment:
       # Load our flask environment from our .env file.
       - FLASK_ENV=${FLASK_ENV}
-      - BALSAM_API_KEY=${BALSAM_API_KEY}
+      - API_KEY=${API_KEY}
     ports:
       - 5000:5000
+    restart: always

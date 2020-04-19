@@ -28,3 +28,7 @@ dc-start-local:
 	@docker-compose stop;
 	@docker-compose build;
 	@docker-compose up --scale nginx=0;
+
+.PHONY: dc-ps
+dc-ps:
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}";
