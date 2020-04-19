@@ -32,3 +32,7 @@ dc-start-local:
 .PHONY: dc-ps
 dc-ps:
 	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}";
+
+.PHONY: dc-pg
+dc-pg:
+	@docker-compose up db;
