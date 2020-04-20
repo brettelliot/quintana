@@ -1,6 +1,6 @@
 # Juniper
 
-This repository contains necessary files to build a web-app running with Nginx / Gunicorn / Flask / LetsEncrypt using Docker and docker-compose.  
+This repository contains necessary files to build a web-app running with Nginx / Gunicorn / Flask / LetsEncrypt / Postgres  using Docker and docker-compose.  
 
 **Note: Tested on Ubuntu 18.04**
 
@@ -63,9 +63,16 @@ FLASK_ENV=development
 # configs are under ./core/flask_app/__init__.py
 FLASK_APP=flask_app
 
-# This repo pulls in balsam, a simple flask API. It is secured with an api key
-# stored in an environment variable. Set it to something stronger in production:
-BALSAM_API_KEY=demo_key
+# The flask app's api is secured with an api key stored in an environment 
+# variable. Set it to something stronger in production:production
+API_KEY=demo_key
+
+# Postgres stuff. Replace with more meaningful values
+POSTGRES_USER=pguser
+POSTGRES_PASSWORD=pgpw
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=pgdb
 ```
 
 ## Turning it on
@@ -84,6 +91,8 @@ sudo make dc-reboot      # Reboot application.
 sudo make dc-stop        # Stop application.
 sudo make dc-cleanup     # Delete and clear docker images.
 sudo make dc-start-local # Start application w/o nginx (for running locally)
+sudo make dc-ps          # Show what docker processes are running
+sudo make dc-pg          # Only run the postgres db service
 ```
 
 Auto checks are running weekly to update the certificates. 
@@ -101,9 +110,6 @@ sudo make dc-stop
 sudo git checkout master
 sudo git pull origin master
 
-# Update the submodules
-sudo git submodule update --init --recursiv
-
 # Update the .env file if needed
 sudo cp .env.example .env
 sudo vim .env
@@ -112,5 +118,5 @@ sudo vim .env
 sudo make dc-start
 
 # check its running
-sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+sudo make dc-ps
 ```
