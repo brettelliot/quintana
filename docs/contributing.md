@@ -15,6 +15,7 @@ git checkout -b be-feature
 git checkout be-feature
 
 # 3. Do work in your feature branch, committing early and often
+git add .
 git add -p
 git commit -m "my changes"
 git push
@@ -48,4 +49,13 @@ git checkout be-feature
 
 # 9b. Replay your changes on top of your feature branch
 git pull
+```
+
+## Remove a docker volume
+Sometimes you just want to clean up everything (like the postgres db). To remove a docker volume (like delete the postgres db) first shutdown the container and volumes. Then find and delete a specific volume and remove it:
+
+```sh
+docker-compose down --volumes
+docker volume ls
+docker volume rm <name_of_volume>
 ```
