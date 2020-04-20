@@ -38,7 +38,7 @@ git push origin master
 git tag 1.0.0
 
 # 8b. push single tag
-git push origin 1.0.0
+git push origin 2.0.0
 
 # 8c. Push all tags
 git push origin --tags

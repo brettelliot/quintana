@@ -36,3 +36,7 @@ dc-ps:
 .PHONY: dc-pg
 dc-pg:
 	@docker-compose up db;
+
+.PHONY: dc-psql
+dc-psql:
+	@docker exec -it juniper_db_1 psql -U pguser pgdb

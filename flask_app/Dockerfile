@@ -1,6 +1,3 @@
-# File     : Dockerfile
-# Date     : 13.01.2020
-# Author   : Matthieu Petiteau <mpetiteau.pro@gmail.com>
 #
 # Dockerfile to run our Flask app with Gunicorn.
 #
@@ -9,6 +6,8 @@ FROM alpine:3.11.0
 
 # Install needed dependencies for Python 3.
 RUN apk update && \
+    apk add --no-cache postgresql-libs && \
+    apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
     apk add build-base python3 python3-dev libffi-dev libressl-dev && \
     ln -sf /usr/bin/python3 /usr/bin/python && \
     ln -sf /usr/bin/pip3 usr/bin/pip && \

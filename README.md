@@ -68,11 +68,11 @@ FLASK_APP=flask_app
 API_KEY=demo_key
 
 # Postgres stuff. Replace with more meaningful values
-POSTGRES_USER=test
-POSTGRES_PASSWORD=password
+POSTGRES_USER=pguser
+POSTGRES_PASSWORD=pgpw
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
-POSTGRES_DB=example
+POSTGRES_DB=pgdb
 ```
 
 ## Turning it on
