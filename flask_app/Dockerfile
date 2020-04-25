@@ -22,7 +22,7 @@ USER app
 ENV PATH="/home/app/.local/bin:${PATH}"
 
 # Work from
-WORKDIR app/
+WORKDIR /usr/src/app/
 
 # Copy our requirements to the workdir on our Alpine image and
 # process to install.

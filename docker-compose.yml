@@ -24,6 +24,8 @@ services:
     depends_on:
       - application
     restart: always     
+    depends_on:
+      - application
   
   application:
     # Load app folder fron our .env file (in this example: core).
@@ -32,7 +34,7 @@ services:
     # If can be the app entrypoint (wsgi if using ./core/wsgi.py)
     # or the application package (as in this case) as the app's
     # configs are under ./core/flask_app/__init__.py
-    command: gunicorn -c gunicorn_ini.py ${FLASK_APP}:app
+    command: gunicorn -c gunicorn_ini.py ${FLASK_APP}:app --reload
     volumes:
       - ./${APP_FOLDER}:/usr/src/app
     environment:
@@ -48,6 +50,8 @@ services:
     ports:
       - 5000:5000
     restart: always
+    depends_on:
+      - db
 
   db:
     image: postgres:12-alpine
