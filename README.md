@@ -1,8 +1,16 @@
-# Juniper
+# Quintana
 
-This repository contains necessary files to build a web-app running with Nginx / Gunicorn / Flask / LetsEncrypt / Postgres  using Docker and docker-compose.  
+This repository is a muli-container docker app that hosts a financial API. 
 
-**Note: Tested on Ubuntu 18.04**
+It's built with:
+* Docker & docker-compose
+* Nginx
+* Gunicorn
+* Flask
+* LetsEncrypt
+* Postgres
+
+**Note: Tested on Ubuntu 18.04 hosted on digitalocean.**
 
 ## Docker
 
@@ -10,6 +18,7 @@ service | image
 --- | ---
 flask & gunicorn | `alpine:3.11.0`
 nginx | `nginx:1.17.7-alpine`
+postgres | postgres:12-alpine
 
 ## Requirements
 
@@ -28,7 +37,7 @@ I recommend doing this in `/opt`
 
 ```sh
 cd /opt
-sudo git clone https://github.com/brettelliot/juniper.git
+sudo git clone https://github.com/brettelliot/quintana.git
 ```
 
 Install docker, docker-compose and make (explained [above](#requirements)).  
@@ -40,7 +49,13 @@ sudo usermod -aG docker $USER
 ```
 Log out from the server and log back in for changes to apply.  
 
-#### 3) Define applications details
+#### 3) Open the firewall for letsencrypt
+```sh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw status
+```
+#### 4) Define applications details
 Copy `.env.example` to `.env` and enter your application details.   
 ```sh
 # .env.example
@@ -97,11 +112,20 @@ sudo make dc-pg          # Only run the postgres db service
 
 Auto checks are running weekly to update the certificates. 
 
+## Testing it
+
+Locally:
+* http://0.0.0.0:5000/
+* http://0.0.0.0:5000/api/v1/tests/secure-object?api_key=demo_key
+* http://0.0.0.0:5000/api/v1/tests/secure-pg-object?api_key=demo_key
+
+To test remotely, simply use https and the domain name of your server.
+
 ## Updating the host after a change
-Let's say juniper has been updated. This is how you get the new changes on the host:
+Let's say quintana has been updated. This is how you get the new changes on the host:
 
 ```sh
-cd /opt/juniper
+cd /opt/quintana
 
 # Shutdown everything
 sudo make dc-stop
@@ -120,3 +144,4 @@ sudo make dc-start
 # check its running
 sudo make dc-ps
 ```
+
