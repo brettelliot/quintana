@@ -108,6 +108,7 @@ sudo make dc-cleanup     # Delete and clear docker images.
 sudo make dc-start-local # Start application w/o nginx (for running locally)
 sudo make dc-ps          # Show what docker processes are running
 sudo make dc-pg          # Only run the postgres db service
+sudo make dc-psql        # Run psql (requires the postgres container to be running)
 ```
 
 Auto checks are running weekly to update the certificates. 

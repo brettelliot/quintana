@@ -14,10 +14,20 @@ git checkout -b be-feature
 # 2. Or switch to it if it already exists
 git checkout be-feature
 
-# 3. Do work in your feature branch, committing early and often
+# 3a. Do work in your feature branch, committing early and often. If you want
+to commit all your changes at once:
 git add .
+
+# 3b. If you want to commit patches one at a time:
 git add -p
+
+# 3c. Now add a message
 git commit -m "my changes"
+
+# 3d. Push your changes. First push?
+git push --set-upstream origin be-feature
+
+# 3e. Repeat pushes:
 git push
 
 # 4. Rebase frequently to incorporate upstream changes
@@ -27,6 +37,9 @@ git rebase origin/master
 
 # 5. Interactive rebase (squash) your commits
 git rebase -i origin/master
+
+# I think maybe i had to do this?
+git push  
 
 # 6. Merge your changes with master
 git checkout master
@@ -39,7 +52,7 @@ git push origin master
 git tag 1.0.0
 
 # 8b. push single tag
-git push origin 2.0.0
+git push origin 1.0.0
 
 # 8c. Push all tags
 git push origin --tags

@@ -39,4 +39,4 @@ dc-pg:
 
 .PHONY: dc-psql
 dc-psql:
-	@docker exec -it juniper_db_1 psql -U pguser pgdb
+	@docker exec -it $(POSTGRES_HOST) psql -U $(POSTGRES_USER) $(POSTGRES_DB)

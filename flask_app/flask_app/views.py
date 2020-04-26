@@ -10,20 +10,8 @@ def root():
     """Main."""
     return render_template("index.html", msg="Awesome, quintana works")
 
-@app.route('/api/v1/tests/simple-object', methods=['GET'])
-def simple_object():
-    obj = {'string_member': 'string value', 'int_member': 2}
-    return jsonify(obj)
-
-@app.route('/api/v1/tests/secure-object', methods=['GET'])
+@app.route('/api/v1/stock/<string:symbol>/financials', methods=['GET'])
 @env_auth.require_api_key
-def secure_object():
-    obj = {'secure_string_member': 'secure string value', \
-           'secure_int_member': 3}
-    return jsonify(obj)
-
-@app.route('/api/v1/tests/secure-pg-object', methods=['GET'])
-@env_auth.require_api_key
-def secure_pg_object():
-    financials = model.get_financials()
+def get_financials(symbol):
+    financials = model.get_financials(symbol)
     return jsonify(financials)

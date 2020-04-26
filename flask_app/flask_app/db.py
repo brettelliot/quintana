@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
-from contextlib import contextmanager
+from sqlalchemy.ext.declarative import declarative_base
+import contextlib
 from . import app
 
 class DB:
@@ -20,10 +20,11 @@ class DB:
             f'{port}/{database}'
         )
 
-        self._engine = create_engine(db_uri)
+        self._engine = sa.create_engine(db_uri)
 
         # use session_factory() to get a new Session
-        self._session_factory = sessionmaker(bind=self._engine)
+        self._session_factory = sessionmaker(
+            bind=self._engine)
 
         self._base = declarative_base()
 
@@ -34,7 +35,7 @@ class DB:
     def base(self):
         return self._base
 
-    @contextmanager
+    @contextlib.contextmanager
     def session_scope(self):
         session = self._session_factory()
         try:
