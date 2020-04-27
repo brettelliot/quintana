@@ -1,6 +1,6 @@
 # Contributing
 
-## Making changes to the juniper project
+## Making changes to this  project
 We use a simple git rebase workflow from [here](http://reinh.com/blog/2009/03/02/a-git-workflow-for-agile-teams.html)
 
 ```sh

@@ -47,6 +47,9 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
+      # Get the IEX stuff for iexfinance 
+      - IEX_TOKEN=${IEX_TOKEN}
+      - IEX_API_VERSION=${IEX_API_VERSION}
     ports:
       - 5000:5000
     restart: always

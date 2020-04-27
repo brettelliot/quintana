@@ -2,17 +2,16 @@ import sqlalchemy as sa
 import datetime as dt
 import json
 from . import db
+from iexfinance.stocks import Stock
 
 class Financials(db.base()):
     __tablename__ = 'quintana_financials'
     symbol = sa.Column(sa.String, primary_key=True)
     financials = sa.Column(sa.String)
-    next_earnings_date = sa.Column(sa.String)
 
-    def __init__(self, symbol, financials, next_earnings_date):
+    def __init__(self, symbol, financials):
         self.symbol = symbol
         self.financials = financials
-        self.next_earnings_date = next_earnings_date
 
 class QuintanaDatabase:
 
@@ -33,7 +32,7 @@ class QuintanaDatabase:
         """
         result = self._get_financials(symbol)
         today_str = dt.datetime.today().strftime('%Y-%m-%d')
-        if result != None and result['next_earnings_date'] >= today_str:
+        if result != None and result['nextEarningsDate'] >= today_str:
             # We got a result and its not stale
             return result
         elif result != None:
@@ -55,28 +54,29 @@ class QuintanaDatabase:
             return json.loads(result.financials)
 
     def _fetch_financials(self, symbol):
-        next_earnings_date = "2022-02-14"
-        raw_dict = {
-            "symbol": symbol,
-            "reportDate": "2018-03-31",
-            "fiscalDate": "2018-03-31",
-            "currentCash": 25913000000,
-            "next_earnings_date": next_earnings_date
-        }
-
-        session = db.session_factory()
-        financial = Financials(symbol, json.dumps(raw_dict),
-                               next_earnings_date)
-        session.add(financial)
-        session.commit()
-        session.close()
+        """ Call multiple endpoints on IEX using iexfinance and write the
+        results into our db."""
+        try:
+            stock = Stock(symbol)
+            raw_dict = stock.get_balance_sheet()['balancesheet'][0]
+            raw_dict.update(stock.get_income_statement()[0])
+            raw_dict['nextEarningsDate'] = stock.get_key_stats()['nextEarningsDate']
+            raw_dict['symbol'] = symbol
+        except Exception as e:
+            print(e)
+            return
+        else:
+            session = db.session_factory()
+            financial = Financials(symbol, json.dumps(raw_dict))
+            session.add(financial)
+            session.commit()
+            session.close()
 
     def _remove_financials(self, symbol):
         session = db.session_factory()
         session.query(Financials).filter(Financials.symbol == symbol).delete()
         session.commit()
         session.close()
-
 
 def get_financials(symbol):
     return _qdb.get_financials(symbol)
