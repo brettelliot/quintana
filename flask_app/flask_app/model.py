@@ -58,9 +58,11 @@ class QuintanaDatabase:
         results into our db."""
         try:
             stock = Stock(symbol)
-            raw_dict = stock.get_balance_sheet()['balancesheet'][0]
+            raw_dict = stock.get_cash_flow()['cashflow'][0]
             raw_dict.update(stock.get_income_statement()[0])
+            raw_dict.update(stock.get_balance_sheet()['balancesheet'][0])
             raw_dict['nextEarningsDate'] = stock.get_key_stats()['nextEarningsDate']
+            raw_dict['companyName'] = stock.get_key_stats()['companyName']
             raw_dict['symbol'] = symbol
         except Exception as e:
             print(e)

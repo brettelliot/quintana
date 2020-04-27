@@ -8,7 +8,7 @@ from . import model
 @app.route("/")
 def root():
     """Main."""
-    return render_template("index.html", msg="Awesome, quintana works")
+    return render_template("index.html", msg="Awesome, quintana works.")
 
 @app.route('/api/v1/stock/<string:symbol>/financials', methods=['GET'])
 @env_auth.require_api_key
