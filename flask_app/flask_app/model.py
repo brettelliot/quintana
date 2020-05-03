@@ -36,10 +36,10 @@ class QuintanaDatabase:
         result = self._get_financials_query(symbol)
         today_str = dt.datetime.today().strftime('%Y-%m-%d')
         if (result != None and
-                'fetch_date' in result and
+                #'fetch_date' in result and
                 result.fetch_date != None and
                 result.fetch_date > today_str and
-                'financials' in result and
+                #'financials' in result and
                 result.financials != None):
             # We got a result and its not stale
             return json.loads(result.financials)
@@ -51,22 +51,11 @@ class QuintanaDatabase:
         self._fetch_financials(symbol)
         result = self._get_financials_query(symbol)
         if (result != None
-                and 'financials' in result
+                #and 'financials' in result
                 and  result.financials != None):
             return json.loads(result.financials)
         else:
             return {}
-
-
-    def _get_financials(self, symbol):
-        session = db.session_factory()
-        result = session.query(Financials).filter(
-            Financials.symbol == symbol).one_or_none()
-        session.close()
-        if result == None:
-            return None
-        else:
-            return json.loads(result.financials)
 
     def _get_financials_query(self, symbol):
         """Get a single row in the financials table for the symbol if it exists
