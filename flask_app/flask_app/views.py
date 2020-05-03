@@ -4,6 +4,7 @@ from . import app
 from flask import jsonify
 from . import env_auth
 from . import model
+import logging
 
 @app.route("/")
 def root():
@@ -13,5 +14,5 @@ def root():
 @app.route('/api/v1/stock/<string:symbol>/financials', methods=['GET'])
 @env_auth.require_api_key
 def get_financials(symbol):
-    financials = model.get_financials(symbol)
+    financials = model.get_financials(symbol.lower())
     return jsonify(financials)
