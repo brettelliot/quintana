@@ -35,8 +35,12 @@ class QuintanaDatabase:
         """
         result = self._get_financials_query(symbol)
         today_str = dt.datetime.today().strftime('%Y-%m-%d')
-        if result != None and result.fetch_date != None and \
-                result.fetch_date > today_str:
+        if (result != None and
+                'fetch_date' in result and
+                result.fetch_date != None and
+                result.fetch_date > today_str and
+                'financials' in result and
+                result.financials != None):
             # We got a result and its not stale
             return json.loads(result.financials)
         elif result != None:
@@ -45,7 +49,13 @@ class QuintanaDatabase:
 
         # Get new result and return it
         self._fetch_financials(symbol)
-        return json.loads(self._get_financials_query(symbol).financials)
+        result = self._get_financials_query(symbol)
+        if (result != None
+                and 'financials' in result
+                and  result.financials != None):
+            return json.loads(result.financials)
+        else:
+            return {}
 
 
     def _get_financials(self, symbol):
