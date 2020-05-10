@@ -2,4 +2,4 @@ flask
 gunicorn
 sqlalchemy
 psycopg2
-iexfinance
+jinx

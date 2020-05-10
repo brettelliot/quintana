@@ -4,6 +4,8 @@
 
 FROM alpine:3.11.0
 
+ENV PYTHONUNBUFFERED 11
+
 # Install needed dependencies for Python 3.
 RUN apk update && \
     apk add --no-cache postgresql-libs && \
@@ -27,7 +29,7 @@ WORKDIR /usr/src/app/
 # Copy our requirements to the workdir on our Alpine image and
 # process to install.
 COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+RUN pip install --user --no-cache-dir -r requirements.txt
 
 # Copy content from our core/ directory to the workdir on our Alpine
 # image so we've got the app ready to be launched.

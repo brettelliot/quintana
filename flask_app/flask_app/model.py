@@ -2,19 +2,21 @@ import sqlalchemy as sa
 import datetime as dt
 import json
 from . import db
-from iexfinance.stocks import Stock
+from . import myjinxstock
 import logging
 
 class Financials(db.base()):
     __tablename__ = 'quintana_financials'
     symbol = sa.Column(sa.String, primary_key=True)
     financials = sa.Column(sa.String)
-    fetch_date = sa.Column(sa.String)
+    report_date = sa.Column(sa.String)
+    last_check_date = sa.Column(sa.String)
 
-    def __init__(self, symbol, financials, fetch_date):
+    def __init__(self, symbol, financials, report_date, last_check_date):
         self.symbol = symbol
         self.financials = financials
-        self.fetch_date = fetch_date
+        self.report_date = report_date
+        self.last_check_date = last_check_date
 
 class QuintanaDatabase:
 
@@ -24,34 +26,42 @@ class QuintanaDatabase:
     def get_financials(self, symbol):
         """ Returns dict of financial data for a stock symbol.
 
-        Args:
-            symbol (str):
-                The ticker symbol of the stock
+        Parameters
+        ----------
+        symbol: str
+            The ticker symbol of the stock
 
-        Returns:
-            dict:
-                A dict containing the financial data
-
+        Returns
+        -------
+        data: dict:
+            A dict containing the financial data
         """
         result = self._get_financials_query(symbol)
         today_str = dt.datetime.today().strftime('%Y-%m-%d')
         if (result != None and
-                #'fetch_date' in result and
-                result.fetch_date != None and
-                result.fetch_date > today_str and
-                #'financials' in result and
+                result.last_check_date != None and
+                result.last_check_date == today_str and
                 result.financials != None):
             # We got a result and its not stale
             return json.loads(result.financials)
         elif result != None:
-            # We got a result but it's stale
-            self._remove_financials(symbol)
+            # We got a result but it might be stale
+            stock = myjinxstock.MyJinxStock(symbol)
+            lfrd_dict = stock.get_latest_financial_report_date()
+            latest_report_date = lfrd_dict['latestFinancialReportDate']
+            if (latest_report_date is None or result.last_check_date is None or
+                latest_report_date >= result.last_check_date):
+                # Yup, there's new data. Remove our existing row.
+                self._remove_financials(symbol)
+            else:
+                # Nothing new. Just update the last_check_date
+                return self._update_financials_last_check_date(symbol,
+                                                               today_str)
 
         # Get new result and return it
         self._fetch_financials(symbol)
         result = self._get_financials_query(symbol)
         if (result != None
-                #and 'financials' in result
                 and  result.financials != None):
             return json.loads(result.financials)
         else:
@@ -60,13 +70,15 @@ class QuintanaDatabase:
     def _get_financials_query(self, symbol):
         """Get a single row in the financials table for the symbol if it exists
 
-        Args:
-            symbol(str):
-                The ticker symbol
+        Parameters
+        ---------
+        symbol :str
+            The ticker symbol
 
-        Returns:
-            Query:
-                A query object with columns from the financials table or none
+        Returns
+        -------
+        Query: sqlalchemy.orm.query.Query
+            A query object with columns from the financials table or none
         """
         session = db.session_factory()
         result = session.query(Financials).filter(
@@ -78,42 +90,51 @@ class QuintanaDatabase:
             return result
 
     def _fetch_financials(self, symbol):
-        """ Call multiple endpoints on IEX using iexfinance and write the
-        results into our db."""
+        """ Get data from IEX using jinx and write the results into our db.
+
+        Parameters
+        ---------
+        synbol: str
+            Ticker symbol
+        """
         try:
             raw_dict = {'symbol': symbol}
-            stock = Stock(symbol)
-
-            cash_flow = stock.get_cash_flow()
-            if ('cashflow' in cash_flow and
-                    len(cash_flow['cashflow']) > 0):
-                raw_dict.update(cash_flow['cashflow'][0])
+            stock = myjinxstock.MyJinxStock(symbol)
+            cf_dict = stock.get_cash_flow()
+            if ('cashflow' in cf_dict and
+                    len(cf_dict['cashflow']) > 0):
+                raw_dict.update(cf_dict['cashflow'][0])
             else:
                 logging.error('{} has no cash flow data'.format(symbol))
 
-            income_statement_list = stock.get_income_statement()
-            if len(income_statement_list) == 0:
-                logging.error('{} has no income statement'.format(symbol))
+            is_dict = stock.get_income_statement()
+            if ('income' in is_dict and
+                    len(is_dict['income']) > 0):
+                raw_dict.update(is_dict['income'][0])
             else:
-                raw_dict.update(income_statement_list[0])
+                logging.error('{} has no income statement data'.format(symbol))
 
-            bal_sheet = stock.get_balance_sheet()
-            if ('balancesheet' in bal_sheet and
-                    len(bal_sheet['balancesheet']) > 0):
-                raw_dict.update(bal_sheet['balancesheet'][0])
+            bs_dict = stock.get_balance_sheet()
+            if ('balancesheet' in bs_dict and
+                    len(bs_dict['balancesheet']) > 0):
+                raw_dict.update(bs_dict['balancesheet'][0])
             else:
                 logging.error('{} has no balance sheet data'.format(symbol))
 
-            key_stats_dict = stock.get_key_stats()
-            if 'nextEarningsDate' in key_stats_dict:
-                raw_dict['nextEarningsDate'] = key_stats_dict['nextEarningsDate']
+            company_dict = stock.get_company()
+            if not company_dict:
+                logging.error('{} has no company data'.format(symbol))
             else:
-                logging.error('{} has no next earnings date data'.format(symbol))
+                raw_dict.update(company_dict)
 
-            if 'companyName' in key_stats_dict:
-                raw_dict['companyName'] = key_stats_dict['companyName']
+            lfrd_dict = stock.get_latest_financial_report_date()
+            if 'latestFinancialReportDate' in lfrd_dict:
+                last_report_date = lfrd_dict['latestFinancialReportDate']
+                raw_dict['latestFinancialReportDate'] = last_report_date
             else:
-                logging.error('{} has no company name data'.format(symbol))
+                last_report_date = None
+                logging.error('{} has no latest financial reportdate'.
+                              format(symbol))
 
         except Exception as e:
             logging.error('Error in _fetch_financials')
@@ -122,18 +143,11 @@ class QuintanaDatabase:
             return
         else:
             today = dt.datetime.today()
-            today_str = today.strftime('%Y-%m-%d')
-
-            if('nextEarningsDate' in raw_dict and
-                    raw_dict['nextEarningsDate'] is not None
-                    and raw_dict['nextEarningsDate'] > today_str):
-                fetch_date = raw_dict['nextEarningsDate']
-            else:
-                fetch_date = (today +
-                              dt.timedelta(days=31)).strftime('%Y-%m-%d')
+            last_check_date = today.strftime('%Y-%m-%d')
 
             session = db.session_factory()
-            financial = Financials(symbol, json.dumps(raw_dict), fetch_date)
+            financial = Financials(symbol, json.dumps(raw_dict),
+                                   last_report_date, last_check_date)
             session.add(financial)
             session.commit()
             session.close()
@@ -143,6 +157,32 @@ class QuintanaDatabase:
         session.query(Financials).filter(Financials.symbol == symbol).delete()
         session.commit()
         session.close()
+
+    def _update_financials_last_check_date(self, symbol, last_check_date):
+        """Update the row in the financials table with a new last_check_date
+
+        Paramaters
+        ---------
+        symbol: str
+            The ticker symbol
+        last_check_date: str
+            The new that we last checked for financials
+
+        Returns
+        -------
+        result: sqlalchemy query
+            The updated financials row
+        """
+
+        session = db.session_factory()
+        result = session.query(Financials).filter(
+            Financials.symbol == symbol).one_or_none()
+        result.last_check_date = last_check_date
+        session.close()
+        if result == None:
+            return None
+        else:
+            return result
 
 def get_financials(symbol):
     return _qdb.get_financials(symbol)
