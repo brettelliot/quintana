@@ -178,6 +178,7 @@ class QuintanaDatabase:
         result = session.query(Financials).filter(
             Financials.symbol == symbol).one_or_none()
         result.last_check_date = last_check_date
+        session.commit()
         session.close()
         if result == None:
             return None
