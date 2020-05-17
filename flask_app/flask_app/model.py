@@ -36,29 +36,44 @@ class QuintanaDatabase:
         data: dict:
             A dict containing the financial data
         """
+        # First, see try and get something from the db
         result = self._get_financials_query(symbol)
         today_str = dt.datetime.today().strftime('%Y-%m-%d')
+
+        # If we got some data and we already checked for new stuff today 
+        # then we have the latest stuff so return it
         if (result != None and
                 result.last_check_date != None and
                 result.last_check_date == today_str and
                 result.financials != None):
             # We got a result and its not stale
             return json.loads(result.financials)
+
+        # otherwise, this stuff mmight be stale
         elif result != None:
-            # We got a result but it might be stale
+            # Call IEX and check what the latest report date is
+            # (This is a free call to IEX)
             stock = myjinxstock.MyJinxStock(symbol)
             lfrd_dict = stock.get_latest_financial_report_date()
             latest_report_date = lfrd_dict['latestFinancialReportDate']
-            if (latest_report_date is None or result.last_check_date is None or
-                latest_report_date >= result.last_check_date):
+
+            # If the latest report date they have is newer than our reportDate
+            # then we need to fetch the new stuff (so remvoe what we have)
+            if (latest_report_date is None or
+                    result.report_date is None or
+                    latest_report_date > result.report_date):
                 # Yup, there's new data. Remove our existing row.
                 self._remove_financials(symbol)
+
+            # Looks like what we have is the latest. Mark that we checked today
+            # so we don't check anymore.
             else:
                 # Nothing new. Just update the last_check_date
                 return self._update_financials_last_check_date(symbol,
                                                                today_str)
 
-        # Get new result and return it
+        # If we're here, then we haven't returned anything yet. Must be time 
+        # to get new result and return it.
         self._fetch_financials(symbol)
         result = self._get_financials_query(symbol)
         if (result != None
